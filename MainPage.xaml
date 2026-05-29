@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:WeatherApp.ViewModels"
+             x:DataType="vm:WeatherViewModel"
+             x:Class="WeatherApp.MainPage"
+             Title="WeatherSphere">
+
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#0F172A" Offset="0.0" />
+            <GradientStop Color="#1E1B4B" Offset="0.5" />
+            <GradientStop Color="#2E1065" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="20" MaximumWidthRequest="500" HorizontalOptions="Center">
+            
+            <!-- Header Row -->
+            <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="12" Margin="0,10,0,10">
+                <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
+                    <Label Text="WeatherSphere" 
+                           TextColor="White" 
+                           FontSize="28" 
+                           FontAttributes="Bold" 
+                           CharacterSpacing="1" />
+                    <Label Text="Cosmic Weather Forecasts" 
+                           TextColor="#94A3B8" 
+                           FontSize="12" />
+                </VerticalStackLayout>
+
+                <!-- Units Toggle Button -->
+                <Button Grid.Column="1"
+                        Text="{Binding TempSymbol}"
+                        Command="{Binding ToggleUnitsCommand}"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        BackgroundColor="#20FFFFFF"
+                        CornerRadius="20"
+                        WidthRequest="45"
+                        HeightRequest="40"
+                        Padding="0"
+                        VerticalOptions="Center" />
+
+                <!-- Settings Button -->
+                <Button Grid.Column="2"
+                        Text="⚙️"
+                        Command="{Binding ToggleSettingsCommand}"
+                        TextColor="White"
+                        FontSize="18"
+                        BackgroundColor="#20FFFFFF"
+                        CornerRadius="20"
+                        WidthRequest="40"
+                        HeightRequest="40"
+                        Padding="0"
+                        VerticalOptions="Center" />
+            </Grid>
+
+            <!-- Collapsible Settings Panel -->
+            <Border IsVisible="{Binding IsSettingsVisible}"
+                    BackgroundColor="#15FFFFFF"
+                    Stroke="Transparent"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="16"
+                    Margin="0,0,0,10">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Configuration Settings" 
+                           TextColor="White" 
+                           FontSize="16" 
+                           FontAttributes="Bold" />
+                    
+                    <Label Text="The application uses a shared developer API key by default. If you have your own OpenWeatherMap API key, please enter it below:" 
+                           TextColor="#CBD5E1" 
+                           FontSize="12" 
+                           LineBreakMode="WordWrap" />
+
+                    <!-- API Key Entry -->
+                    <Entry Placeholder="Enter OpenWeatherMap API Key" 
+                           PlaceholderColor="#64748B"
+                           Text="{Binding SavedApiKey, Mode=TwoWay}"
+                           TextColor="White"
+                           BackgroundColor="#10FFFFFF"
+                           HeightRequest="44"
+                           Margin="0,4,0,0" />
+
+                    <Grid ColumnDefinitions="*, *" ColumnSpacing="10" Margin="0,4,0,0">
+                        <Button Grid.Column="0"
+                                Text="Save Key"
+                                Command="{Binding SaveApiKeyCommand}"
+                                BackgroundColor="#10B981"
+                                TextColor="White"
+                                FontAttributes="Bold"
+                                CornerRadius="8"
+                                HeightRequest="40"/>
+                        
+                        <Button Grid.Column="1"
+                                Text="Clear Key"
+                                Command="{Binding ClearApiKeyCommand}"
+                                BackgroundColor="#EF4444"
+                                TextColor="White"
+                                FontAttributes="Bold"
+                                CornerRadius="8"
+                                HeightRequest="40"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Search Container -->
+            <Border BackgroundColor="#15FFFFFF"
+                    Stroke="Transparent"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="12">
+                <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
+                    <Entry Grid.Column="0"
+                           Placeholder="Search city (e.g. Sydney, Tokyo, Paris)..."
+                           PlaceholderColor="#94A3B8"
+                           Text="{Binding CityQuery, Mode=TwoWay}"
+                           TextColor="White"
+                           FontSize="15"
+                           BackgroundColor="Transparent"
+                           HeightRequest="46"
+                           VerticalOptions="Center"
+                           ReturnCommand="{Binding SearchCommand}" />
+                    
+                    <Button Grid.Column="1"
+                            Text="Search"
+                            Command="{Binding SearchCommand}"
+                            TextColor="White"
+                            FontAttributes="Bold"
+                            CornerRadius="12"
+                            HeightRequest="46"
+                            WidthRequest="90">
+                        <Button.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#8B5CF6" Offset="0.0" />
+                                <GradientStop Color="#EC4899" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Button.Background>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- Loading State -->
+            <VerticalStackLayout IsVisible="{Binding IsLoading}" HorizontalOptions="Center" Spacing="10" Margin="0,40,0,40">
+                <ActivityIndicator IsRunning="{Binding IsLoading}" Color="#EC4899" WidthRequest="40" HeightRequest="40" />
+                <Label Text="Retrieving atmospheric data..." TextColor="#94A3B8" FontSize="14" />
+            </VerticalStackLayout>
+
+            <!-- Error State -->
+            <Border IsVisible="{Binding HasError}"
+                    BackgroundColor="#20EF4444"
+                    Stroke="#50EF4444"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="14"
+                    Margin="0,10,0,10">
+                <Grid ColumnDefinitions="Auto, *" ColumnSpacing="12">
+                    <Label Grid.Column="0" Text="⚠️" FontSize="20" VerticalOptions="Center" />
+                    <Label Grid.Column="1" 
+                           Text="{Binding ErrorMessage}" 
+                           TextColor="#FCA5A5" 
+                           FontSize="14" 
+                           LineBreakMode="WordWrap"
+                           VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <!-- Welcome / Empty State -->
+            <Border IsVisible="{Binding IsWelcomeVisible}"
+                    BackgroundColor="#0BFFFFFF"
+                    Stroke="Transparent"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 24"
+                    Padding="30,40"
+                    Margin="0,20,0,20">
+                <VerticalStackLayout Spacing="15" HorizontalOptions="Center">
+                    <Label Text="🌤️" 
+                           FontSize="64" 
+                           HorizontalOptions="Center" 
+                           Margin="0,0,0,10" />
+                    
+                    <Label Text="Welcome to WeatherSphere" 
+                           TextColor="White" 
+                           FontSize="20" 
+                           FontAttributes="Bold" 
+                           HorizontalOptions="Center" />
+                    
+                    <Label Text="Explore current weather forecasts across the globe. Type a city name above to fetch real-time atmospheric data." 
+                           TextColor="#94A3B8" 
+                           FontSize="14" 
+                           HorizontalOptions="Center" 
+                           HorizontalTextAlignment="Center" 
+                           LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Main Weather Display -->
+            <VerticalStackLayout IsVisible="{Binding IsWeatherVisible}" Spacing="20">
+                
+                <!-- Core Weather Card -->
+                <Border BackgroundColor="#1EFFFFFF"
+                        Stroke="Transparent"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 24"
+                        Padding="24">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{Binding DisplayCity}" 
+                               TextColor="White" 
+                               FontSize="26" 
+                               FontAttributes="Bold" 
+                               HorizontalOptions="Center" />
+
+                        <Grid ColumnDefinitions="*, Auto" HorizontalOptions="Center" Margin="0,10,0,10">
+                            <Label Grid.Column="0" 
+                                   Text="{Binding DisplayTemp}" 
+                                   TextColor="White" 
+                                   FontSize="60" 
+                                   FontAttributes="Bold" 
+                                   VerticalOptions="Center" />
+                            
+                            <Image Grid.Column="1" 
+                                   Source="{Binding DisplayIconUrl}" 
+                                   WidthRequest="90" 
+                                   HeightRequest="90" 
+                                   VerticalOptions="Center" 
+                                   Margin="10,0,0,0" />
+                        </Grid>
+
+                        <Label Text="{Binding DisplayDescription}" 
+                               TextColor="#E2E8F0" 
+                               FontSize="18" 
+                               FontAttributes="Bold" 
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Detailed Weather Stats Grid -->
+                <Grid ColumnDefinitions="*, *" RowDefinitions="Auto, Auto" ColumnSpacing="15" RowSpacing="15">
+                    
+                    <!-- Feels Like Card -->
+                    <Border Grid.Row="0" Grid.Column="0"
+                            BackgroundColor="#12FFFFFF"
+                            Stroke="Transparent"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 16"
+                            Padding="16">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="FEELS LIKE" TextColor="#94A3B8" FontSize="11" FontAttributes="Bold" CharacterSpacing="1" />
+                            <Label Text="{Binding DisplayFeelsLike}" TextColor="White" FontSize="20" FontAttributes="Bold" />
+                            <Label Text="Thermal index" TextColor="#64748B" FontSize="11" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Humidity Card -->
+                    <Border Grid.Row="0" Grid.Column="1"
+                            BackgroundColor="#12FFFFFF"
+                            Stroke="Transparent"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 16"
+                            Padding="16">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="HUMIDITY" TextColor="#94A3B8" FontSize="11" FontAttributes="Bold" CharacterSpacing="1" />
+                            <Label Text="{Binding DisplayHumidity}" TextColor="White" FontSize="20" FontAttributes="Bold" />
+                            <Label Text="Air moisture" TextColor="#64748B" FontSize="11" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Wind Card -->
+                    <Border Grid.Row="1" Grid.Column="0"
+                            BackgroundColor="#12FFFFFF"
+                            Stroke="Transparent"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 16"
+                            Padding="16">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="WIND" TextColor="#94A3B8" FontSize="11" FontAttributes="Bold" CharacterSpacing="1" />
+                            <Label Text="{Binding DisplayWind}" TextColor="White" FontSize="20" FontAttributes="Bold" />
+                            <Label Text="Velocity system" TextColor="#64748B" FontSize="11" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Pressure Card -->
+                    <Border Grid.Row="1" Grid.Column="1"
+                            BackgroundColor="#12FFFFFF"
+                            Stroke="Transparent"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 16"
+                            Padding="16">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="PRESSURE" TextColor="#94A3B8" FontSize="11" FontAttributes="Bold" CharacterSpacing="1" />
+                            <Label Text="{Binding DisplayPressure}" TextColor="White" FontSize="20" FontAttributes="Bold" />
+                            <Label Text="Atmospheric" TextColor="#64748B" FontSize="11" />
+                        </VerticalStackLayout>
+                    </Border>
+                    
+                </Grid>
+
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
