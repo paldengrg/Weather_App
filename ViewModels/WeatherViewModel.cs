@@ -82,6 +82,8 @@ namespace WeatherApp.ViewModels
         [NotifyPropertyChangedFor(nameof(DisplayTemp))]
         [NotifyPropertyChangedFor(nameof(DisplayFeelsLike))]
         [NotifyPropertyChangedFor(nameof(DisplayWind))]
+        [NotifyPropertyChangedFor(nameof(TempSymbol))]
+        [NotifyPropertyChangedFor(nameof(SpeedSymbol))]
         public partial bool IsMetric { get; set; }
 
         [ObservableProperty]
@@ -198,6 +200,12 @@ namespace WeatherApp.ViewModels
             {
                 _ = SearchAsync();
             }
+        }
+
+        [RelayCommand]
+        public void ToggleSettings()
+        {
+            IsSettingsVisible = !IsSettingsVisible;
         }
 
         private async Task LoadApiKeyAsync()

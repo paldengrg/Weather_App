@@ -152,5 +152,24 @@ namespace WeatherApp.Tests
             // Assert updated state
             Assert.True(viewModel.HasCustomApiKey);
         }
+
+        [Fact]
+        public void ToggleSettings_TogglesIsSettingsVisible()
+        {
+            // Arrange
+            var mockService = new MockWeatherService();
+            var viewModel = new WeatherViewModel(mockService);
+
+            // Assert default state
+            Assert.False(viewModel.IsSettingsVisible);
+
+            // Act & Assert toggle to true
+            viewModel.ToggleSettings();
+            Assert.True(viewModel.IsSettingsVisible);
+
+            // Act & Assert toggle to false
+            viewModel.ToggleSettings();
+            Assert.False(viewModel.IsSettingsVisible);
+        }
     }
 }
