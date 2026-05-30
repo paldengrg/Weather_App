@@ -71,7 +71,7 @@
                            FontSize="16" 
                            FontAttributes="Bold" />
                     
-                    <Label Text="The application uses a shared developer API key by default. If you have your own OpenWeatherMap API key, please enter it below:" 
+                    <Label Text="OpenWeatherMap API keys are optional. Searches work without a key, but you can enter your own key below if you prefer to use OpenWeatherMap:" 
                            TextColor="#CBD5E1" 
                            FontSize="12" 
                            LineBreakMode="WordWrap" />

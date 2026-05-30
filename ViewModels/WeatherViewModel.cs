@@ -12,9 +12,6 @@ namespace WeatherApp.ViewModels
     {
         private readonly IWeatherService _weatherService;
 
-        // Default developer API key for demonstration purposes
-        private const string DefaultDemoKey = "84742a78ec893cc220e8b28f74a0047c";
-
         public WeatherViewModel(IWeatherService weatherService)
         {
             _weatherService = weatherService;
@@ -118,8 +115,8 @@ namespace WeatherApp.ViewModels
 
             try
             {
-                // Use custom key if provided, else fall back to the default demo key
-                var activeApiKey = !string.IsNullOrWhiteSpace(SavedApiKey) ? SavedApiKey : DefaultDemoKey;
+                // A custom OpenWeatherMap key is optional; the service falls back to a keyless provider.
+                var activeApiKey = !string.IsNullOrWhiteSpace(SavedApiKey) ? SavedApiKey : string.Empty;
                 var unitSystem = IsMetric ? "metric" : "imperial";
 
                 var result = await _weatherService.GetWeatherAsync(CityQuery.Trim(), unitSystem, activeApiKey);
